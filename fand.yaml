@@ -1,5 +1,6 @@
 # Minimum temperature and corrosponding fan speeds when hit.
 # Temperatures must be in decending order.
+# Temperatures are in Celcuis
 temperatures:
   65: 100
   60: 55
