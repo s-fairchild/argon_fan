@@ -1,39 +1,14 @@
-from yaml import safe_load
 from time import sleep
 from subprocess import Popen, PIPE
 import smbus, logging
 
 class FanMonitor:
-    def __init__(self):
-        self.fanconfig = {
-            'temperatures': {
-                65: 100,
-                60: 55,
-                55: 10
-            },
-            'loglevel': {'DEBUG'}
-        }
-        try:        
+    def __init__(self, config):
+        self.fanconfig = config
+        try:
             self.bus = smbus.SMBus(1)
         except:
             self.bus = smbus.SMBus(0)
-
-    def parse_config(self):
-        try:
-            logging.info("Reading fand.yaml.")
-            with open('fand.yaml', 'r') as file:
-                config = safe_load(file)
-            logging.info("Successfully read fand.yaml.")
-            if len(config) == 0:
-                return self.fanconfig
-            else:
-                loglevel = f"logging.{config['loglevel']}"
-                logging.basicConfig(format='%(asctime)s - %(message)s', level=loglevel)
-                return config
-        except Exception as e:
-            logging.error(f"Could not read fand.yaml, error message: {e}")
-            logging.error("Using values of 65=100, 60=55, 55=10")
-            return self.fanconfig
         
     def compare_fanspeed(self, temperature, fanconfig):
         for temp in fanconfig['temperatures']:
@@ -57,7 +32,8 @@ class FanMonitor:
     def fan_monitor(self):
         address = 0x1a
         block = 0
-        self.fanconfig = self.parse_config()
+        loglevel = f"logging.{self.fanconfig['loglevel']}"
+        logging.basicConfig(format='%(asctime)s - %(message)s', level=loglevel)
         while True:
             tempC = self.read_temperature()
             block = self.compare_fanspeed(tempC, self.fanconfig)
