@@ -6,9 +6,12 @@ import smbus, logging
 class FanMonitor:
     def __init__(self):
         self.fanconfig = {
-            65: 100,
-            60: 55,
-            55: 10
+            'temperatures': {
+                65: 100,
+                60: 55,
+                55: 10
+            },
+            'loglevel': {'DEBUG'}
         }
         try:        
             self.bus = smbus.SMBus(1)
@@ -24,6 +27,8 @@ class FanMonitor:
             if len(config) == 0:
                 return self.fanconfig
             else:
+                loglevel = f"logging.{config['loglevel']}"
+                logging.basicConfig(format='%(asctime)s - %(message)s', level=loglevel)
                 return config
         except Exception as e:
             logging.error(f"Could not read fand.yaml, error message: {e}")
@@ -31,9 +36,9 @@ class FanMonitor:
             return self.fanconfig
         
     def compare_fanspeed(self, temperature, fanconfig):
-        for temp in fanconfig:
+        for temp in fanconfig['temperatures']:
             if temp >= temperature:
-                return fanconfig[temp]
+                return fanconfig['temperatures'][temp]
         return 0
     
     def read_temperature(self):

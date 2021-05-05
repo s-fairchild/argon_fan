@@ -5,3 +5,5 @@ temperatures:
   65: 100
   60: 55
   55: 10
+
+loglevel: INFO
