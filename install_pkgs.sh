@@ -19,7 +19,7 @@ create_user() {
     fi
 }
 install_pkgs() {
-        pkgs=('RPi.GPIO' 'gpiozero' 'pyyaml' 'vcgencmd')
+        pkgs=('gpiozero' 'pyyaml')
     for pkg in ${pkgs[@]}; do
         pip3 install ${pkg}
     done

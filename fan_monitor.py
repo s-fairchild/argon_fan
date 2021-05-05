@@ -1,6 +1,6 @@
 from yaml import safe_load
-from vcgencmd import Vcgencmd
 from time import sleep
+from subprocess import Popen, PIPE
 import smbus
 
 class FanMonitor:
@@ -10,7 +10,6 @@ class FanMonitor:
             60: 55,
             55: 10
         }
-        self.vcgm = Vcgencmd()
         try:        
             self.bus = smbus.SMBus(1)
         except:
@@ -36,15 +35,27 @@ class FanMonitor:
             if temp >= temperature:
                 return temp
         return 0
+    
+    def read_temperature(self):
+        try:
+            p1 = Popen(['vcgencmd', 'measure_temp'], stdout=PIPE)
+            data = p1.communicate()
+        except Exception as e:
+            print(e)
+            
+        if data[1] is not None:
+            print(f"Error running vcgencmd measure_temp: {data[1]}")
+        str_tempC = data[0]
+        str_tempC = str_tempC.replace("temp=","")
+        return float(str_tempC.replace("\'C",""))
 
     def fan_monitor(self):
         address = 0x1a
         block = 0
         self.fanconfig = self.parse_config()
-
         while True:
-            current_temp = self.vcgm.measure_temp()
-            block = self.compare_fanspeed(current_temp, self.fanconfig)
+            tempC = self.read_temperature()
+            block = self.compare_fanspeed(tempC, self.fanconfig)
             try:
                 self.bus.write_byte(address, block)
             except IOError as e:
