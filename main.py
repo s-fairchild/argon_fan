@@ -4,6 +4,7 @@ from powerbutton import PowerButton
 from signal import signal, SIGINT
 from sys import exit
 from yaml import safe_load
+from database import Sqlite3Database
 
 default_fanconfig = {
         'temperatures': {
@@ -14,6 +15,8 @@ default_fanconfig = {
     }
 
 def handler(signal_received, frame):
+    db.write_memdb_tofile()
+    db.conn.close()
     print('SIGINT or CTRL-C detected. Exiting gracefully')
     exit(0)
 
@@ -33,11 +36,12 @@ def parse_config():
         return default_fanconfig
 
 if __name__=="__main__":
+    db = Sqlite3Database()
     signal(SIGINT, handler)
     config = parse_config()
     fan_monitor = FanMonitor(config)
     power_button = PowerButton()
-    th_fan_monitor = Thread(target=fan_monitor.fan_monitor(), daemon=True)
+    th_fan_monitor = Thread(target=fan_monitor.fan_monitor(db), daemon=True)
     th_power_button = Thread(target=power_button.monitor(), daemon=True)
     try:
         print("Starting fan monitoring thread now.")

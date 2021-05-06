@@ -30,7 +30,7 @@ class FanMonitor:
         str_tempC = str_tempC.replace("temp=","")
         return float(str_tempC.replace("\'C",""))
 
-    def fan_monitor(self):
+    def fan_monitor(self, db):
         address = 0x1a
         block = 0
         while True:
@@ -41,4 +41,5 @@ class FanMonitor:
                 self.bus.write_byte(address, block)
             except IOError as e:
                 print(f"Unable to set fan speed: {e}")
+            db.insert_into_temperatures(tempC, block)
             sleep(30)
