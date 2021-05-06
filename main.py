@@ -17,6 +17,7 @@ default_fanconfig = {
 def handler(signal_received, frame):
     db.write_memdb_tofile()
     db.conn.close()
+    fan_monitor.bus.write_byte(fan_monitor.address, 0) # Set fanspeed to 0
     print('SIGINT or CTRL-C detected. Exiting gracefully')
     exit(0)
 

@@ -5,6 +5,7 @@ import smbus
 class FanMonitor:
     def __init__(self, config):
         self.fanconfig = config
+        self.address = 0x1a
         try:
             self.bus = smbus.SMBus(1)
         except:
@@ -31,14 +32,12 @@ class FanMonitor:
         return float(str_tempC.replace("\'C",""))
 
     def fan_monitor(self, db):
-        address = 0x1a
-        block = 0
         while True:
             tempC = self.read_temperature()
             block = self.compare_fanspeed(tempC, self.fanconfig)
             print(f"Current CPU temperature\n\tC:{tempC}\n\tF:{tempC * 1.8 + 32}\nSetting Fan speed to: {block}")
             try:
-                self.bus.write_byte(address, block)
+                self.bus.write_byte(self.address, block)
             except IOError as e:
                 print(f"Unable to set fan speed: {e}")
             db.insert_into_temperatures(tempC, block)
