@@ -6,4 +6,5 @@ temperatures:
   60: 55
   55: 10
 
-loglevel: INFO
+# Not implimented yet
+#loglevel: INFO
