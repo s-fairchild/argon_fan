@@ -4,6 +4,7 @@ from powerbutton import PowerButton
 from signal import signal, SIGINT
 from sys import exit
 from yaml import safe_load
+from time import sleep
 
 default_fanconfig = {
         'temperatures': {
@@ -13,7 +14,7 @@ default_fanconfig = {
         },
     }
 
-def handler(signal_received, frame):
+def handler():
     print('SIGINT or CTRL-C detected. Exiting gracefully')
     exit(0)
 
@@ -47,3 +48,11 @@ if __name__=="__main__":
     except Exception as e:
         print(f"An Exception occured while starting threads: {e}")
         print("Stopping threads now...")
+    while True:
+        if th_fan_monitor.is_alive() is False:
+            print("The fan monitor thread has died... exiting.")
+            handler()
+        if th_power_button.is_alive() is False:
+            print("The power button monitor thread has died... exiting.")
+            handler()
+        sleep(30)
