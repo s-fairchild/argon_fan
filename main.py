@@ -8,11 +8,12 @@ from database import Sqlite3Database
 from time import sleep
 
 default_fanconfig = {
-        'temperatures': {
+        'temperatures' : {
             65: 100,
             60: 55,
             55: 10
         },
+        'database' : False
     }
 
 def handler():
@@ -38,9 +39,12 @@ def parse_config():
         return default_fanconfig
 
 if __name__=="__main__":
-    db = Sqlite3Database()
     signal(SIGINT, handler)
     config = parse_config()
+    if config['database']:
+        db = Sqlite3Database()
+    else:
+        db = None
     fan_monitor = FanMonitor(config)
     power_button = PowerButton()
     th_fan_monitor = Thread(target=fan_monitor.fan_monitor(db), daemon=True)
@@ -60,6 +64,7 @@ if __name__=="__main__":
         if th_power_button.is_alive() is False:
             print("The power button monitor thread has died... exiting.")
             handler()
-        db.show_values_pretty()
-        print(f"Current CPU temperature\n\tC:{fan_monitor.tempC}\n\tF:{db.CtoF(fan_monitor.tempC)}")
+        if config['database'] is not None:
+            db.show_values_pretty()
+        print(f"Current CPU temperature\n\tC:{fan_monitor.tempC}\n\tF:{fan_monitor.tempC * 1.8 + 32}")
         sleep(30)

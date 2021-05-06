@@ -6,5 +6,7 @@ temperatures:
   60: 55
   55: 10
 
+database: True
+
 # Not implimented yet
 #loglevel: INFO
