@@ -22,7 +22,7 @@ class FanMonitor:
         while True:
             self.tempC = round(gpio.CPUTemperature().temperature, 1)
             block = self.compare_fanspeed(self.tempC, self.fanconfig)
-            if block > 0:
+            if block != prev_block:
                 print(f"Current CPU temperature\n\tC:{self.tempC}\n\tF:{self.tempC * 1.8 + 32}\nSetting Fan speed to: {block}")
             if prev_block > block:
                 sleep(30) # Run fan at higher speed for an additional 30 seconds
