@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import datetime
 
 class Sqlite3Database:
     def __init__(self, filedb='fand_temps.db'):
@@ -56,7 +57,8 @@ class Sqlite3Database:
         print(f'Copied {total-remaining} of {total} pages...')
 
     def write_memdb_tofile(self):
-        bck = sqlite3.connect('fand_temps.db')
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        bck = sqlite3.connect(f'fand_temps_{now.replace(" ","_")}.db')
         with bck:
             self.conn.backup(bck, pages=1, progress=self.progress)
         bck.close()
