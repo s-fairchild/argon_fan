@@ -59,13 +59,32 @@ install_files() {
         echo "/opt/fand/fand.yaml already installed. Skipping."
     fi
 }
+uninstall() {
+    check_root
+    unalias rm 2> /dev/null
+    systemctl disable --now fand.service
+    if [[ -f /usr/lib/systemd/system/fand.service ]]; then
+        rm /usr/lib/systemd/system/fand.service
+    fi
+    userdel -r fand
+    if [[ -d /opt/fand ]]; then
+        rm -rf /opt/fand
+    fi
+}
+usage() {
+    echo -e "Installer script usage:\n   No arguements to run installer\n   --uninstall            Completely remove fand service"
+}
 main() {
     check_root
     create_user
     install_pkgs
     install_files
 }
-
-main
-
+if [[ ! -z "$1" ]] && [[ "$1" == "--uninstall" ]]; then
+    uninstall
+elif [[ ! -z "$1" ]]; then
+    usage
+else
+    main
+fi
 exit 0
