@@ -6,22 +6,27 @@ check_root() {
     fi
 }
 create_user() {
-    grep fand /etc/passwd > /dev/null
-    if [[ ! "$?" -eq 0 ]]; then
-        service_account="fand"
-        sudo useradd -c "fand service account" -r -b /opt/fand fand
-        if [ ! -d /opt/fand ]; then
-            mkdir -p /opt/fand
-            chown -R fand: /opt/fand
-        fi
-    else
-        echo "fand account already exists. Skipping."
-    fi
+    fand_groups="i2c,spi,video"
+    mkdir -p /opt/fand/.local/bin
+    echo -e "# set PATH so it includes user's private bin if it exists\n \
+if [ -d "$HOME/.local/bin" ] ; then\n \
+\tPATH=\"\$HOME/.local/bin:\$PATH\"\n \
+fi" > /opt/fand/.profile
+    sudo useradd -c "fand service account" -r -d /opt/fand fand
+    usermod -aG ${fand_groups} fand
+    chown -R fand: /opt/fand
 }
 install_pkgs() {
-        pkgs=('gpiozero' 'pyyaml' 'RPi.GPIO' 'smbus')
-    for pkg in ${pkgs[@]}; do
-        pip3 install ${pkg}
+    debpkgs=('python3-pip' 'i2c-tools')
+    for pkg in ${debpkgs[@]}; do
+        apt install ${pkg} -y
+    done
+
+    pypkgs=('gpiozero' 'pyyaml' 'RPi.GPIO' 'smbus')
+    echo "Installing python packages for fand user account only."
+    echo -e "If you wish to run this program from another user account you will need to either install packages globally, or for that user."
+    for pkg in ${pypkgs[@]}; do
+        su fand -c "pip3 install ${pkg}"
     done
 }
 install_files() {
@@ -54,10 +59,13 @@ install_files() {
         echo "/opt/fand/fand.yaml already installed. Skipping."
     fi
 }
+main() {
+    check_root
+    create_user
+    install_pkgs
+    install_files
+}
 
-check_root
-#create_user
-install_pkgs
-#install_files
+main
 
 exit 0
