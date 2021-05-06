@@ -5,6 +5,11 @@ class Sqlite3Database:
         self.filedb = filedb
         self.conn = sqlite3.connect("file::memory:?cache=shared", uri=True)
         self.cursor = self.conn.cursor()
+        self.readings = { 
+            'tempC_avg' : 0,
+            'tempC_max' : 0,
+            'tempC_min' : 0
+        }
         self.create_table_sql = """
         CREATE TABLE temperatures(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,16 +25,32 @@ class Sqlite3Database:
         self.cursor.execute(insert_row)
         self.conn.commit()
     
+    def CtoF(self, tempC):
+        return tempC * 1.8 + 32
+    
     def query_temp_avg(self):
-        query = """ SELECT avg(tempC) from temperatures; """
-        self.cursor.execute(query)
+        query_avg = """ SELECT avg(tempC) from temperatures; """
+        query_min = """ SELECT min(tempC) from temperatures; """
+        query_max = """ SELECT max(tempC) from temperatures; """
+        self.cursor.execute(query_avg)
         row = self.cursor.fetchone()
         if row[0] is not None:
-            tempF_avg = row[0] * 1.8 + 32 # Create tempF avg
-            return row[0],tempF_avg
-        else:
-            print("Not enough data to create averages.")
-            return None
+            self.readings['tempC_avg'] = row[0]
+        self.cursor.execute(query_min)
+        row2 = self.cursor.fetchone()
+        if row2[0] is not None:
+            self.readings['tempC_min'] = row2[0]
+        self.cursor.execute(query_max)
+        row3 = self.cursor.fetchone()
+        if row3[0] is not None:
+            self.readings['tempC_max'] = row3[0]
+        return self.readings
+    
+    def show_values_pretty(self):
+        self.query_temp_avg
+        print(f"Average CPU temperature\n\tC:{self.readings['tempC_avg']}\n\tF:{self.CtoF(self.readings['tempC_avg'])}")
+        print(f"Minimum CPU temperature\n\tC:{self.readings['tempC_min']}\n\tF:{self.CtoF(self.readings['tempC_min'])}")
+        print(f"Maximum CPU temperature\n\tC:{self.readings['tempC_max']}\n\tF:{self.CtoF(self.readings['tempC_max'])}")
     
     def progress(self, status, remaining, total):
         print(f'Copied {total-remaining} of {total} pages...')

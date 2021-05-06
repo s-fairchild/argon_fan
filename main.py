@@ -60,4 +60,6 @@ if __name__=="__main__":
         if th_power_button.is_alive() is False:
             print("The power button monitor thread has died... exiting.")
             handler()
+        db.show_values_pretty()
+        print(f"Current CPU temperature\n\tC:{fan_monitor.tempC}\n\tF:{db.CtoF(fan_monitor.tempC)}")
         sleep(30)
