@@ -14,7 +14,7 @@ class Sqlite3Database:
         CREATE TABLE temperatures(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             created DATETIME DEFAULT CURRENT_TIMESTAMP,
-            tempC,
+            tempC REAL,
             fanspeed
         );
         """
