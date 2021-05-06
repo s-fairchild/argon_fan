@@ -17,14 +17,18 @@ class FanMonitor:
         return 0
 
     def fan_monitor(self, db):
+        prev_block = 0
         while True:
             self.tempC = round(gpio.CPUTemperature().temperature, 1)
             block = self.compare_fanspeed(self.tempC, self.fanconfig)
             if block > 0:
                 print(f"Current CPU temperature\n\tC:{self.tempC}\n\tF:{db.CtoF(self.tempC)}\nSetting Fan speed to: {block}")
+            if prev_block > block:
+                sleep(30) # Run fan at higher speed for an additional 30 seconds
             try:
                 self.bus.write_byte(self.address, block)
             except IOError as e:
                 print(f"Unable to set fan speed: {e}")
             db.insert_into_temperatures(self.tempC, block)
+            prev_block = block
             sleep(30)
