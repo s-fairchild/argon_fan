@@ -1,6 +1,5 @@
 from time import sleep
-from subprocess import Popen, PIPE
-import smbus
+import smbus, gpiozero as gpio
 
 class FanMonitor:
     def __init__(self, config):
@@ -15,26 +14,11 @@ class FanMonitor:
             if temperature >= temp:
                 return fanconfig['temperatures'][temp]
         return 0
-    
-    def read_temperature(self):
-        try:
-            p1 = Popen(['vcgencmd', 'measure_temp'], stdout=PIPE)
-            data = p1.communicate()
-        except Exception as e:
-            print(f"Error running vcgencmd measure_temp: {e}")
-        if data[1] is not None:
-            print(f"Error running vcgencmd measure_temp: {data[1]}")
-
-        str_tempC = data[0].decode('utf-8')
-        str_tempC = str_tempC.replace("\\n","")
-        str_tempC = str_tempC.replace("temp=","")
-        return float(str_tempC.replace("\'C",""))
 
     def fan_monitor(self):
         address = 0x1a
-        block = 0
         while True:
-            tempC = self.read_temperature()
+            tempC = round(gpio.CPUTemperature.temperature, 1)
             block = self.compare_fanspeed(tempC, self.fanconfig)
             print(f"Current CPU temperature\n\tC:{tempC}\n\tF:{tempC * 1.8 + 32}\nSetting Fan speed to: {block}")
             try:
