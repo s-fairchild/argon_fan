@@ -19,7 +19,7 @@ create_user() {
     fi
 }
 install_pkgs() {
-        pkgs=('gpiozero' 'pyyaml')
+        pkgs=('gpiozero' 'pyyaml' 'RPi.GPIO' 'smbus')
     for pkg in ${pkgs[@]}; do
         pip3 install ${pkg}
     done
@@ -56,8 +56,8 @@ install_files() {
 }
 
 check_root
-create_user
+#create_user
 install_pkgs
-install_files
+#install_files
 
 exit 0
