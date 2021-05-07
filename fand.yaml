@@ -6,5 +6,17 @@ temperatures:
   60: 55
   55: 10
 
+database:
+  # If enabled is True temperature and fanspeed will be saved to mariadb with the information below. The user must exist and have permissions to the database.
+  # The table can be created upon service start if it does not exist.
+  enabled : True
+  # If show data is true, average, minumim and maximum temperatures from the database will be shown in logs.
+  showdata: True
+  username : rpi4
+  password : password
+  host : server
+  port : 3306
+  database : hardware_readings
+  table : cputemps
 # Not implimented yet
 #loglevel: INFO
