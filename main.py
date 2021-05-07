@@ -51,8 +51,8 @@ if __name__=="__main__":
     while True:
         if th_fan_monitor.is_alive() is False:
             print("The fan monitor thread has died... exiting.")
-            handler()
+            exit(1)
         if th_power_button.is_alive() is False:
             print("The power button monitor thread has died... exiting.")
-            handler()
+            exit(2)
         sleep(30)
