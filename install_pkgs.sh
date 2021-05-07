@@ -6,7 +6,7 @@ check_root() {
     fi
 }
 create_user() {
-    fand_groups="i2c,spi,video"
+    fand_groups="i2c,spi,video,gpio"
     mkdir -p /opt/fand/.local/bin
     echo -e "# set PATH so it includes user's private bin if it exists\n \
 if [ -d "$HOME/.local/bin" ] ; then\n \
@@ -57,6 +57,11 @@ install_files() {
         cp ./fand.yaml /opt/fand/
     else
         echo "/opt/fand/fand.yaml already installed. Skipping."
+    fi
+    if [[ ! -f /opt/fand/database.py ]]; then
+        cp ./database.py /opt/fand/
+    else
+        echo "/opt/fand/database.py already installed. Skipping."
     fi
 }
 uninstall() {
