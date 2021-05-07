@@ -38,8 +38,8 @@ if __name__=="__main__":
     config = parse_config()
     fan_monitor = FanMonitor(config)
     power_button = PowerButton()
-    th_fan_monitor = Thread(target=fan_monitor.fan_monitor(), daemon=True)
-    th_power_button = Thread(target=power_button.monitor(), daemon=True)
+    th_fan_monitor = Thread(target=fan_monitor.fan_monitor, daemon=True)
+    th_power_button = Thread(target=power_button.monitor, daemon=True)
     try:
         print("Starting fan monitoring thread now.")
         th_fan_monitor.start()
