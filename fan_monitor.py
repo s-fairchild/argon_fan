@@ -7,8 +7,12 @@ class FanMonitor:
         self.address = address
         try:
             self.bus = smbus.SMBus(1)
-        except:
-            self.bus = smbus.SMBus(0)
+        except Exception as e:
+            print(f"Failed to set SMBus(1), {e}\nTrying SMBus(0)")
+            try:
+                self.bus = smbus.SMBus(0)
+            except Exception as e:
+                print(f"Failed to set SMBus(1): {e}\nIs i2c enabled?\nFan cannot be accessed without enabling i2c.")
         
     def compare_fanspeed(self, temperature, fanconfig):
         for temp in fanconfig['temperatures']:
