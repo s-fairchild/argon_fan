@@ -48,11 +48,3 @@ if __name__=="__main__":
     except Exception as e:
         print(f"An Exception occured while starting threads: {e}")
         print("Stopping threads now...")
-    while True:
-        if th_fan_monitor.is_alive() is False:
-            print("The fan monitor thread has died... exiting.")
-            exit(1)
-        if th_power_button.is_alive() is False:
-            print("The power button monitor thread has died... exiting.")
-            exit(2)
-        sleep(30)
