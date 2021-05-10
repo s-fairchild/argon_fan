@@ -38,8 +38,8 @@ if __name__=="__main__":
     config = parse_config()
     fan_monitor = FanMonitor(config)
     power_button = PowerButton()
-    th_fan_monitor = Thread(target=fan_monitor.fan_monitor, daemon=True)
     th_power_button = Thread(target=power_button.monitor, daemon=True)
+    th_fan_monitor = Thread(target=fan_monitor.fan_monitor, daemon=True)
     try:
         print("Starting fan monitoring thread now.")
         th_fan_monitor.start()
@@ -48,11 +48,5 @@ if __name__=="__main__":
     except Exception as e:
         print(f"An Exception occured while starting threads: {e}")
         print("Stopping threads now...")
-    while True:
-        if th_fan_monitor.is_alive() is False:
-            print("The fan monitor thread has died... exiting.")
-            exit(1)
-        if th_power_button.is_alive() is False:
-            print("The power button monitor thread has died... exiting.")
-            exit(2)
-        sleep(30)
+    
+    th_fan_monitor.join(); th_power_button.join()

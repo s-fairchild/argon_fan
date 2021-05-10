@@ -17,12 +17,12 @@ fi" > /opt/fand/.profile
     chown -R fand: /opt/fand
 }
 install_pkgs() {
-    debpkgs=('python3-pip' 'i2c-tools')
+    debpkgs=('python3-pip' 'i2c-tools' 'libmariadb3' 'libmariadb-dev')
     for pkg in ${debpkgs[@]}; do
         apt install ${pkg} -y
     done
 
-    pypkgs=('gpiozero' 'pyyaml' 'RPi.GPIO' 'smbus')
+    pypkgs=('gpiozero' 'pyyaml' 'RPi.GPIO' 'smbus' 'mariadb')
     echo "Installing python packages for fand user account only."
     echo -e "If you wish to run this program from another user account you will need to either install packages globally, or for that user."
     for pkg in ${pypkgs[@]}; do

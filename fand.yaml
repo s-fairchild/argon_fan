@@ -6,5 +6,20 @@ temperatures:
   60: 55
   55: 10
 
-# Not implimented yet
-#loglevel: INFO
+database:
+  # Mariadb must be configured to use settings made here before fand can access the database.
+  # If mariadb is enabled then sqlite enabled has no affect.
+  showdata: True # If show data is true, average, minumim and maximum temperatures from the database will be shown in logs.
+  mariadb:
+    enabled : False
+    username : rpi4
+    password : password
+    host : server
+    port : 3306
+    database : hardware_readings
+    table : cputemps
+  sqlite:
+    enabled: True
+    file: fand.db
+
+dev_debug_mode: False
