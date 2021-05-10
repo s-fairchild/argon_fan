@@ -1,6 +1,5 @@
 from time import sleep
 import smbus, gpiozero as gpio
-from database import MariaDB
 
 class FanMonitor:
     def __init__(self, config, address=0x1a, usedatabase=False):
@@ -29,7 +28,10 @@ class FanMonitor:
 
     def fan_monitor(self):
         if self.usedatabase:
-            db = MariaDB(user=self.fanconfig['database']['username'], password=self.fanconfig['database']['password'], host=self.fanconfig['database']['host'], port=self.fanconfig['database']['port'], database=self.fanconfig['database']['database'], table=self.fanconfig['database']['table'])
+            from database import MariaDB
+            db = MariaDB(user=self.fanconfig['database']['username'], password=self.fanconfig['database']['password'], 
+                        host=self.fanconfig['database']['host'], port=self.fanconfig['database']['port'], 
+                        database=self.fanconfig['database']['database'], table=self.fanconfig['database']['table'])
         while True:
             cpu_tempC = round(gpio.CPUTemperature().temperature, 1)
             block = self.compare_fanspeed(cpu_tempC, self.fanconfig)
