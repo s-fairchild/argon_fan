@@ -1,14 +1,26 @@
 import mariadb as db
 from time import sleep
+from datetime import datetime
+import sqlite3
+
+query_avg = """ SELECT avg(cpu_tempC) from temperatures; """
+query_min = """ SELECT min(cpu_tempC) from temperatures; """
+query_max = """ SELECT max(cpu_tempC) from temperatures; """
+insert_row = f"""INSERT INTO temperatures(cpu_tempC, fanspeed) VALUES(?, ?);"""
+readings = {
+    'tempC_avg' : 0,
+    'tempC_max' : 0,
+    'tempC_min' : 0
+    }
 
 class MariaDB:
-    def __init__(self, user="rpi4", password="password", host="127.0.0.1", port=3306, database="hardware_readings", table="cputemps"):
-        self.user = user
-        self.password = password
-        self.host = host
-        self.port = port
-        self.database = database
-        self.table = table
+    def __init__(self, config):
+        self.username = config['database']['mariadb']['username']
+        self.password = config['database']['mariadb']['password']
+        self.host = config['database']['mariadb']['host']
+        self.port = config['database']['mariadb']['port']
+        self.database = config['database']['mariadb']['database']
+        self.table = config['database']['mariadb']['table']
     
     def init_database(self):
         create_db = f""" CREATE DATABASE IF NOT EXISTS {self.database}; """
@@ -29,7 +41,7 @@ class MariaDB:
             delay = i * 10
             try:
                 conn = db.connect(
-                    user = self.user,
+                    user = self.username,
                     password = self.password,
                     host = self.host,
                     port = self.port,
@@ -42,40 +54,75 @@ class MariaDB:
                 continue
 
     def save_data(self, cpu_tempC, fanspeed):
-        insert_statement = f"""INSERT INTO sensors(cpu_tempC, fanspeed) VALUES({cpu_tempC}, {fanspeed});"""
         conn = self.db_connect()
         cur = conn.cursor()
-        cur.execute(insert_statement)
+        data_tuple = (cpu_tempC, fanspeed)
+        cur.execute(insert_row, data_tuple)
         conn.commit(); conn.close()
 
     def query_data(self):
-        readings = {
-            'cpu' : {
-                'tempC_avg' : 0,
-                'tempC_max' : 0,
-                'tempC_min' : 0
-            },
-            'videocore' : {
-                'tempC_avg' : 0,
-                'tempC_max' : 0,
-                'tempC_min' : 0
-            }
-        }
-        query_avg = """ SELECT avg(tempC) from hardware_readings; """
-        query_min = """ SELECT min(tempC) from hardware_readings; """
-        query_max = """ SELECT max(tempC) from hardware_readings; """
         conn = db.connect()
         cursor = conn.cursor()
         cursor.execute(query_avg)
         row = cursor.fetchone()
         if row[0] is not None:
-            readings['cpu']['tempC_avg'] = row[0]
+            readings['tempC_avg'] = row[0]
         cursor.execute(query_min)
         row2 = cursor.fetchone()
         if row2[0] is not None:
-            readings['cpu']['tempC_min'] = row2[0]
+            readings['tempC_min'] = row2[0]
         cursor.execute(query_max)
         row3 = cursor.fetchone()
         if row3[0] is not None:
-            readings['cpu']['tempC_max'] = row3[0]
+            readings['tempC_max'] = row3[0]
+        return readings
+
+class Sqlite3:
+    def __init__(self, filedb='fand.db'):
+            self.filedb = filedb
+            self.init_database()
+    
+    def create_connection(self):
+        try:        
+            conn = sqlite3.connect(self.filedb)
+            return conn
+        except Exception as e:
+            print(f"Unable to connect to sqlite3 database {self.filedb}, {e}")
+    
+    def init_database(self):
+        conn = self.create_connection()
+        cursor = conn.cursor()
+        create_table_sql = """
+            CREATE TABLE IF NOT EXISTS temperatures(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                created DATETIME DEFAULT CURRENT_TIMESTAMP,
+                cpu_tempC REAL,
+                fanspeed
+            );
+            """
+        cursor.execute(create_table_sql)
+        conn.commit()
+        cursor.close()
+
+    def save_data(self, tempC, fanspeed):
+        conn = self.create_connection(); cursor = conn.cursor()
+        data_tuple = (tempC, fanspeed)
+        cursor.execute(insert_row, data_tuple)
+        conn.commit()
+        conn.close()
+    
+    def query_data(self):
+        conn = self.create_connection(); cursor = conn.cursor()
+        cursor.execute(query_avg)
+        row = cursor.fetchone()
+        if row[0] is not None:
+            readings['tempC_avg'] = row[0]
+        cursor.execute(query_min)
+        row2 = cursor.fetchone()
+        if row2[0] is not None:
+            readings['tempC_min'] = row2[0]
+        cursor.execute(query_max)
+        row3 = cursor.fetchone()
+        if row3[0] is not None:
+            readings['tempC_max'] = row3[0]
         return readings
