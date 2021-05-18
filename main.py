@@ -1,8 +1,6 @@
 from threading import Thread
 from fan_monitor import FanMonitor
 from powerbutton import PowerButton
-from signal import signal, SIGINT
-from sys import exit
 from yaml import safe_load
 from time import sleep
 
@@ -13,10 +11,6 @@ default_fanconfig = {
             55: 10
         },
     }
-
-def handler():
-    print('SIGINT or CTRL-C detected. Exiting gracefully')
-    exit(0)
 
 def parse_config():
     try:
@@ -34,7 +28,6 @@ def parse_config():
         return default_fanconfig
 
 if __name__=="__main__":
-    signal(SIGINT, handler)
     config = parse_config()
     fan_monitor = FanMonitor(config)
     power_button = PowerButton()
@@ -44,7 +37,7 @@ if __name__=="__main__":
         print("Starting fan monitoring thread now.")
         th_fan_monitor.start()
         print("Starting powerbutton monitoring thread now.")
-        th_power_button.start()
+        #th_power_button.start()
     except Exception as e:
         print(f"An Exception occured while starting threads: {e}")
         print("Stopping threads now...")
