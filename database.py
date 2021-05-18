@@ -106,9 +106,9 @@ class Sqlite3:
         conn.commit()
         cursor.close()
 
-    def save_data(self, tempC, fanspeed):
+    def save_data(self, cpu_tempC, fanspeed):
         conn = self.create_connection(); cursor = conn.cursor()
-        data_tuple = (round(tempC, 2), fanspeed)
+        data_tuple = (round(cpu_tempC, 2), fanspeed)
         cursor.execute(self.insert_row, data_tuple)
         conn.commit()
         conn.close()
