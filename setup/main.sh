@@ -6,7 +6,7 @@ check_root() {
     fi
 }
 create_user() {
-    mkdir -p ${service_dir}.local/bin
+    mkdir -p ${service_dir}/.local/bin
     echo -e "# set PATH so it includes user's private bin if it exists\n \
     if [ -d "${service_dir}/.local/bin" ] ; then\n \
     \tPATH=\"\$HOME/.local/bin:\$PATH\"\n \
@@ -49,22 +49,22 @@ install_files() {
         echo "fand not installed."
     fi
     if [[ ! -f ${service_dir}/main.py ]]; then
-        cp ./main.py ${service_dir}/
+        cp ../main.py ${service_dir}/
     else
         echo "/opt/fand/main.py already installed. Skipping"
     fi
     if [[ ! -f ${service_dir}/fan_monitor.py ]]; then
-        cp ./fan_monitor.py ${service_dir}/
+        cp ../fan_monitor.py ${service_dir}/
     else
         echo "/opt/fand/fan_monitor.py already installed. Skipping"
     fi
     if [[ ! -f ${service_dir}/powerbutton.py ]]; then
-        cp ./powerbutton.py ${service_dir}/
+        cp ../powerbutton.py ${service_dir}/
     else
         echo "/opt/fand/fan_monitor.py already installed. Skipping"
     fi
     if [[ ! -f ${service_dir}/fand.yaml ]]; then
-        cp ./fand.yaml ${service_dir}/
+        cp ../fand.yaml ${service_dir}/
     else
         echo "/opt/fand/fand.yaml already installed. Skipping."
     fi
