@@ -30,9 +30,9 @@ class FanMonitor:
         return 0
     
     def show_data_pretty(self, readings):
-        print(f"Average CPU temperature\n\tC:{readings['tempC_avg']}\n\tF:{readings['tempC_avg'] * 1.8 + 32}\n")
-        print(f"Minimum CPU temperature\n\tC:{readings['tempC_min']}\n\tF:{readings['tempC_min'] * 1.8 + 32}\n")
-        print(f"Maximum CPU temperature\n\tC:{readings['tempC_max']}\n\tF:{readings['tempC_max'] * 1.8 + 32}\n")
+        print(f"Average CPU temperature\n\tC:{readings['tempC_avg']}\n\tF:{round(float(readings['tempC_avg']) * 1.8 + 32, 2)}\n")
+        print(f"Minimum CPU temperature\n\tC:{readings['tempC_min']}\n\tF:{round(float(readings['tempC_min']) * 1.8 + 32, 2)}\n")
+        print(f"Maximum CPU temperature\n\tC:{readings['tempC_max']}\n\tF:{round(float(readings['tempC_max']) * 1.8 + 32, 2)}\n")
 
     def fan_monitor(self):
         if self.mariadb:
@@ -40,7 +40,7 @@ class FanMonitor:
             db = MariaDB(self.fanconfig)
         elif self.sqlite:
             from database import Sqlite3
-            db = Sqlite3()
+            db = Sqlite3(self.fanconfig)
         while True:
             if self.fanconfig['dev_debug_mode'] is False:
                 cpu_tempC = round(gpio.CPUTemperature().temperature, 1)
