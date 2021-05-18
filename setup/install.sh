@@ -16,6 +16,26 @@ fi" > /opt/fand/.profile
     usermod -aG ${fand_groups} fand
     chown -R fand: /opt/fand
 }
+setup_db() {
+    local sqlscript="$(pwd)/tables.sql"
+    local db_name="fand"
+    local table="readings"
+    local user="fand"
+    local host="127.0.0.1"
+    local db_userpass="password"
+    echo -e "Creating ${db_name} database\n"
+    mysql -e "CREATE DATABASE IF NOT EXISTS ${db_name};"
+    echo "creating user ${user} in mariadb"
+    mysql -e "CREATE USER IF NOT EXISTS '${user}'@'localhost' IDENTIFIED BY '${db_userpass}';"
+    mysql -e "CREATE TABLE IF NOT EXISTS ${db_name}.${table}( \
+    ID BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,\
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\
+    cpu_tempC DECIMAL(4, 2) NOT NULL,\
+    fanspeed INT(100) \
+    );"
+    mysql -e "GRANT ALL PRIVILEGES ON \`${db_name}\`.* TO '${user}'@localhost;"
+    mysql -e "FLUSH PRIVILEGES;"
+}
 install_pkgs() {
     debpkgs=('python3-pip' 'i2c-tools' 'libmariadb3' 'libmariadb-dev')
     for pkg in ${debpkgs[@]}; do
@@ -26,12 +46,12 @@ install_pkgs() {
     echo "Installing python packages for fand user account only."
     echo -e "If you wish to run this program from another user account you will need to either install packages globally, or for that user."
     for pkg in ${pypkgs[@]}; do
-        su fand -c "pip3 install ${pkg}"
+        pip3 install ${pkg}
     done
 }
 install_files() {
     echo "Installing fand.service file now."
-    if [[ -f ./fand.service ]] && [[ ! -f /usr/lib/systemd/system/fand.service ]]; then
+    if [[ -f ./fand.service ]] && [[ -d /usr/lib/systemd/system/ ]]; then
         cp ./fand.service /usr/lib/systemd/system/
         systemctl daemon-reload
         systemctl enable fand.service
@@ -78,6 +98,7 @@ main() {
     check_root
     create_user
     install_pkgs
+    setup_db
     install_files
 }
 if [[ ! -z "$1" ]] && [[ "$1" == "--uninstall" ]]; then
