@@ -12,14 +12,15 @@ database:
   showdata: True # If show data is true, average, minumim and maximum temperatures from the database will be shown in logs.
   mariadb:
     enabled : False
-    username : rpi4
+    username : fand
     password : password
-    host : server
+    host : localhost # mariadb must be installed and configured on host
     port : 3306
-    database : hardware_readings
-    table : cputemps
+    database : fand
+    table : readings
   sqlite:
     enabled: True
+    table: readings
     file: fand.db
 
 dev_debug_mode: False
