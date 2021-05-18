@@ -1,12 +1,7 @@
-import mariadb as db
 from time import sleep
 from datetime import datetime
-import sqlite3
+import sqlite3, mariadb as db
 
-query_avg = """ SELECT avg(cpu_tempC) from temperatures; """
-query_min = """ SELECT min(cpu_tempC) from temperatures; """
-query_max = """ SELECT max(cpu_tempC) from temperatures; """
-insert_row = f"""INSERT INTO temperatures(cpu_tempC, fanspeed) VALUES(?, ?);"""
 readings = {
     'tempC_avg' : 0,
     'tempC_max' : 0,
@@ -21,6 +16,10 @@ class MariaDB:
         self.port = config['database']['mariadb']['port']
         self.database = config['database']['mariadb']['database']
         self.table = config['database']['mariadb']['table']
+        self.query_avg = f""" SELECT avg(cpu_tempC) from {self.table}; """
+        self.query_min = f""" SELECT min(cpu_tempC) from {self.table}; """
+        self.query_max = f""" SELECT max(cpu_tempC) from {self.table}; """
+        self.insert_row = f"""INSERT INTO {self.table}(cpu_tempC, fanspeed) VALUES(?, ?);"""
     
     def init_database(self):
         create_db = f""" CREATE DATABASE IF NOT EXISTS {self.database}; """
@@ -57,30 +56,41 @@ class MariaDB:
         conn = self.db_connect()
         cur = conn.cursor()
         data_tuple = (cpu_tempC, fanspeed)
-        cur.execute(insert_row, data_tuple)
+        cur.execute(self.insert_row, data_tuple)
         conn.commit(); conn.close()
 
     def query_data(self):
-        conn = db.connect()
+        conn = self.db_connect()
         cursor = conn.cursor()
-        cursor.execute(query_avg)
+        cursor.execute(self.query_avg)
         row = cursor.fetchone()
         if row[0] is not None:
             readings['tempC_avg'] = row[0]
-        cursor.execute(query_min)
+        cursor.execute(self.query_min)
         row2 = cursor.fetchone()
         if row2[0] is not None:
             readings['tempC_min'] = row2[0]
-        cursor.execute(query_max)
+        cursor.execute(self.query_max)
         row3 = cursor.fetchone()
         if row3[0] is not None:
             readings['tempC_max'] = row3[0]
         return readings
 
 class Sqlite3:
-    def __init__(self, filedb='fand.db'):
-            self.filedb = filedb
-            self.init_database()
+    def __init__(self, config, filedb='fand.db'):
+        self.filedb = filedb
+        self.table = config['database']['sqlite']['table']
+        self.query_avg = f""" SELECT avg(cpu_tempC) from {self.table}; """
+        self.query_min = f""" SELECT min(cpu_tempC) from {self.table}; """
+        self.query_max = f""" SELECT max(cpu_tempC) from {self.table}; """
+        self.insert_row = f"""INSERT INTO {self.table}(cpu_tempC, fanspeed) VALUES(?, ?);"""
+        self.create_table = f""" CREATE TABLE IF NOT EXISTS {self.table}(
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            created DATETIME DEFAULT CURRENT_TIMESTAMP,
+                            cpu_tempC REAL,
+                            fanspeed
+                            ); """
+        self.init_database()
     
     def create_connection(self):
         try:        
@@ -92,36 +102,28 @@ class Sqlite3:
     def init_database(self):
         conn = self.create_connection()
         cursor = conn.cursor()
-        create_table_sql = """
-            CREATE TABLE IF NOT EXISTS temperatures(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                created DATETIME DEFAULT CURRENT_TIMESTAMP,
-                cpu_tempC REAL,
-                fanspeed
-            );
-            """
-        cursor.execute(create_table_sql)
+        cursor.execute(self.create_table)
         conn.commit()
         cursor.close()
 
     def save_data(self, tempC, fanspeed):
         conn = self.create_connection(); cursor = conn.cursor()
         data_tuple = (tempC, fanspeed)
-        cursor.execute(insert_row, data_tuple)
+        cursor.execute(self.insert_row, data_tuple)
         conn.commit()
         conn.close()
     
     def query_data(self):
         conn = self.create_connection(); cursor = conn.cursor()
-        cursor.execute(query_avg)
+        cursor.execute(self.query_avg)
         row = cursor.fetchone()
         if row[0] is not None:
             readings['tempC_avg'] = row[0]
-        cursor.execute(query_min)
+        cursor.execute(self.query_min)
         row2 = cursor.fetchone()
         if row2[0] is not None:
             readings['tempC_min'] = row2[0]
-        cursor.execute(query_max)
+        cursor.execute(self.query_max)
         row3 = cursor.fetchone()
         if row3[0] is not None:
             readings['tempC_max'] = row3[0]
