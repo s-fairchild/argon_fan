@@ -106,6 +106,11 @@ usage() {
 }
 main() {
     check_root
+    if [[ -f setup_settings.env ]]; then
+        source setup_settings.env
+    else
+        echo "setting_settings.env not found, exiting."; exit 0
+    fi
     create_user
     install_pkgs
     setup_db
