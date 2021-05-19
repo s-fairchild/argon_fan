@@ -40,14 +40,7 @@ install_pkgs() {
     done
 }
 install_files() {
-    echo "Installing fand.service file now."
-    if [[ -f ./fand.service ]] && [[ -d /usr/lib/systemd/system/ ]]; then
-        cp ./fand.service /usr/lib/systemd/system/
-        systemctl daemon-reload
-        systemctl enable fand.service
-    else
-        echo "fand not installed."
-    fi
+    systemd_setup
     if [[ ! -f ${service_dir}/main.py ]]; then
         cp ../main.py ${service_dir}/
     else
@@ -67,6 +60,29 @@ install_files() {
         cp ../fand.yaml ${service_dir}/
     else
         echo "/opt/fand/fand.yaml already installed. Skipping."
+    fi
+}
+systemd_setup() {
+    if [[ -d /usr/lib/systemd/system/ ]]; then
+    echo -e "[Unit]\n\
+Description=PWM Fan Controller Daemon\n\
+After=multi-user.target\n\
+
+[Service]\n\
+Type=simple\n\
+User=fand\n\
+WorkingDirectory=/opt/fand\n\
+Environment=PYTHONPATH=/opt/fand/\n\
+ExecStart=/usr/bin/python3 -u /opt/fand/main.py\n\
+Restart=on-failure\n\
+
+[Install]\n\
+WantedBy=multi-user.target" > /usr/lib/systemd/system/fand.service
+    systemctl daemon-reload
+    systemctl enable fand.service
+    echo "Installed fand.service systemd-unit"
+    else
+        echo "Unable to install fand.service, directory /usr/lib/systemd/system does not exist"
     fi
 }
 uninstall() {
