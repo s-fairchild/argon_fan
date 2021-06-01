@@ -30,14 +30,10 @@ setup_db() {
     mysql -e "FLUSH PRIVILEGES;"
 }
 install_pkgs() {
-    for pkg in ${debpkgs[@]}; do
-        apt install ${pkg} -y
-    done
+    apt install ${debpkgs} -y
     echo "Installing python packages for fand user account only."
     echo -e "If you wish to run this program from another user account you will need to either install packages globally, or for that user."
-    for pkg in ${pypkgs[@]}; do
-        pip3 install ${pkg}
-    done
+    pip3 install ${pypkgs}
 }
 install_files() {
     systemd_setup
@@ -100,7 +96,7 @@ uninstall() {
 }
 usage() {
     echo -e "\nInstaller script usage:\n\n\
-          "sudo ./start_install.sh"          To install run from the setup directory\n\
+          "sudo ./install.sh"          To install run from the setup directory\n\
           --uninstall\
                       Completely remove fand service\n"
 }
