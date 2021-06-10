@@ -6,4 +6,4 @@ temperatures:
   60: 55
   55: 10
 
-dev_debug_mode: True
+dev_debug_mode: False
