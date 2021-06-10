@@ -15,20 +15,6 @@ create_user() {
     usermod -aG ${fand_groups} fand
     chown -R fand: ${service_dir}
 }
-setup_db() {
-    echo -e "Creating ${db_name} database\n"
-    mysql -e "CREATE DATABASE IF NOT EXISTS ${db_name};"
-    echo "creating user ${mariadb_user} in mariadb"
-    mysql -e "CREATE USER IF NOT EXISTS '${mariadb_user}'@'localhost' IDENTIFIED BY '${db_userpass}';"
-    mysql -e "CREATE TABLE IF NOT EXISTS ${db_name}.${table}( \
-    ID BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,\
-    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\
-    cpu_tempC DECIMAL(4, 2) NOT NULL,\
-    fanspeed INT(100) \
-    );"
-    mysql -e "GRANT ALL PRIVILEGES ON \`${db_name}\`.* TO '${mariadb_user}'@localhost;"
-    mysql -e "FLUSH PRIVILEGES;"
-}
 install_pkgs() {
     apt install ${debpkgs} -y
     echo "Installing python packages for fand user account only."
@@ -109,7 +95,6 @@ main() {
     fi
     create_user
     install_pkgs
-    setup_db
     install_files
 }
 if [[ ! -z "$1" ]] && [[ "$1" == "--uninstall" ]]; then
