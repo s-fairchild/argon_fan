@@ -16,7 +16,6 @@ class FanMonitor:
         self.fanconfig = config
         self.address = address
         self.sqlite = config['database']['sqlite']['enabled']
-        self.mariadb = config['database']['mariadb']['enabled']
         self.filedb = config['database']['sqlite']['file']
 
     def dummy_smbus(self, address, block):
@@ -35,10 +34,7 @@ class FanMonitor:
         print(f"Maximum CPU temperature\n\tC:{readings['tempC_max']}\n\tF:{round(float(readings['tempC_max']) * 1.8 + 32, 2)}\n")
 
     def fan_monitor(self):
-        if self.mariadb:
-            from database import MariaDB
-            db = MariaDB(self.fanconfig)
-        elif self.sqlite:
+        if self.sqlite:
             from database import Sqlite3
             db = Sqlite3(self.fanconfig)
         while True:

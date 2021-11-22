@@ -7,19 +7,9 @@ temperatures:
   55: 10
 
 database:
-  # Mariadb must be configured to use settings made here before fand can access the database.
-  # If mariadb is enabled then sqlite enabled has no affect.
   showdata: True # If show data is true, average, minumim and maximum temperatures from the database will be shown in logs.
-  mariadb:
-    enabled : False
-    username : fand
-    password : password
-    host : localhost # mariadb must be installed and configured on host
-    port : 3306
-    database : fand
-    table : readings
   sqlite:
-    enabled: True
+    enabled: True # True to log 
     table: readings
     file: fand.db
 
