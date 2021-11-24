@@ -1,7 +1,6 @@
 from threading import Thread
 from fan_monitor import FanMonitor
 from yaml import safe_load
-from time import sleep
 
 default_fanconfig = {
         'temperatures': {
