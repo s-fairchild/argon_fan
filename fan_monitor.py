@@ -25,9 +25,9 @@ class FanMonitor:
         return 0
     
     def show_data_pretty(self, readings):
-        print(f"Average CPU temperature\n\tC:{readings['tempC_avg']}\n\tF:{round(float(readings['tempC_avg']) * 1.8 + 32, 2)}\n")
-        print(f"Minimum CPU temperature\n\tC:{readings['tempC_min']}\n\tF:{round(float(readings['tempC_min']) * 1.8 + 32, 2)}\n")
-        print(f"Maximum CPU temperature\n\tC:{readings['tempC_max']}\n\tF:{round(float(readings['tempC_max']) * 1.8 + 32, 2)}\n")
+        print(f"Average CPU temperature\n\tC:{readings['tempC_avg']}\n\tF:{readings['tempC_avg'] * 1.8 + 32}\n")
+        print(f"Minimum CPU temperature\n\tC:{readings['tempC_min']}\n\tF:{readings['tempC_min'] * 1.8 + 32}\n")
+        print(f"Maximum CPU temperature\n\tC:{readings['tempC_max']}\n\tF:{readings['tempC_max'] * 1.8 + 32}\n")
 
     def fan_monitor(self):
         if self.sqlite:
@@ -46,7 +46,7 @@ class FanMonitor:
                 block = self.compare_fanspeed(cpu_tempC)
                 self.dummy_smbus(self.address, block)
                 
-            print(f"Current CPU temperature\n\tC:{cpu_tempC}\n\tF:{cpu_tempC * 1.8 + 32}\nSetting Fan speed to: {block}\n")
+            print(f"Current CPU temperature\n\tC:{cpu_tempC}\n\tF:{round(cpu_tempC * 1.8 + 32, 1)}\nSetting Fan speed to: {block}\n")
             
             if 'db' in locals():
                 db.save_data(cpu_tempC, block)

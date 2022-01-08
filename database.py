@@ -12,9 +12,9 @@ class Sqlite3:
     def __init__(self, config, filedb='fand.db'):
         self.filedb = filedb
         self.table = config['database']['sqlite']['table']
-        self.query_avg = f""" SELECT avg(cpu_tempC) from {self.table}; """
-        self.query_min = f""" SELECT min(cpu_tempC) from {self.table}; """
-        self.query_max = f""" SELECT max(cpu_tempC) from {self.table}; """
+        self.query_avg = f""" SELECT ROUND(AVG(cpu_tempC), 2) from {self.table}; """
+        self.query_min = f""" SELECT ROUND(MIN(cpu_tempC), 2) from {self.table}; """
+        self.query_max = f""" SELECT ROUND(MAX(cpu_tempC), 2) from {self.table}; """
         self.insert_row = f"""INSERT INTO {self.table}(cpu_tempC, fanspeed) VALUES(?, ?);"""
         self.create_table = f""" CREATE TABLE IF NOT EXISTS {self.table}(
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
