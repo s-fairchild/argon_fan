@@ -6,6 +6,11 @@ temperatures:
   60: 55
   55: 10
 
+# i2c busses
+# find your i2c bus with i2cdetect -l
+# Only one bus can be specified at this time
+i2c_bus: 20
+
 database:
   showdata: True # If show data is true, average, minumim and maximum temperatures from the database will be shown in logs.
   sqlite:

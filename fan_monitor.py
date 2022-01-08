@@ -6,13 +6,9 @@ class FanMonitor:
     def __init__(self, config, address=0x1a, usedatabase=False):
         if config['dev_debug_mode'] is False:
             try:
-                self.bus = smbus.SMBus(1)
+                self.bus = smbus.SMBus(config["i2c_bus"])
             except Exception as e:
-                print(f"Failed to set SMBus(1), {e}\nTrying SMBus(0)")
-                try:
-                    self.bus = smbus.SMBus(0)
-                except Exception as e:
-                    print(f"Failed to set SMBus(1): {e}\nIs i2c enabled?\nFan cannot be accessed without enabling i2c.")
+                print(f"Failed to set SMBus({config[i2c_bus]}): {e}")
         self.fanconfig = config
         self.address = address
         self.sqlite = config['database']['sqlite']['enabled']
