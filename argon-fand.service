@@ -1,0 +1,11 @@
+[Unit]
+Description=PWM Fan Daemon for Raspberry pi Argon fan
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/argon_fan
+Environment=PYTHONPATH=/opt/argon_fan
+ExecStart=python3 -u /opt/argon_fan/main.py
+
+[Install]
+WantedBy=multi-user.target
