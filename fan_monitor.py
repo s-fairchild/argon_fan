@@ -1,19 +1,18 @@
 from time import sleep
-import smbus, gpiozero as gpio
+import smbus, wiringpi
 from random import randint
 
 class FanMonitor:
-    def __init__(self, config, address=0x1a, usedatabase=False):
+    def __init__(self, config, address=0x1a):
         if config['dev_debug_mode'] is False:
             try:
                 self.bus = smbus.SMBus(config["i2c_bus"])
             except Exception as e:
-                print(f"Failed to set SMBus({config[i2c_bus]}): {e}")
+                print("Something went wrong")
         self.fanconfig = config
         self.address = address
-        self.sqlite = config['database']['sqlite']['enabled']
-        self.filedb = config['database']['sqlite']['file']
 
+    """Used for testing without Raspberry Pi hardware"""
     def dummy_smbus(self, address, block):
         print(f"USING DUMMY SMBus interface! - No real hardware changes were made. \
             \nWrote address: {address} and block: {block} to dummy smbus.")
@@ -30,9 +29,6 @@ class FanMonitor:
         print(f"Maximum CPU temperature\n\tC:{readings['tempC_max']}\n\tF:{readings['tempC_max'] * 1.8 + 32}\n")
 
     def fan_monitor(self):
-        if self.sqlite:
-            from database import Sqlite3
-            db = Sqlite3(self.fanconfig)
         while True:
             if self.fanconfig['dev_debug_mode'] is False:
                 cpu_tempC = round(gpio.CPUTemperature().temperature, 1)
@@ -48,8 +44,4 @@ class FanMonitor:
                 
             print(f"Current CPU temperature\n\tC:{cpu_tempC}\n\tF:{round(cpu_tempC * 1.8 + 32, 1)}\nSetting Fan speed to: {block}\n")
             
-            if 'db' in locals():
-                db.save_data(cpu_tempC, block)
-                if self.fanconfig['database']['showdata']:
-                    self.show_data_pretty(db.query_data())
             sleep(30)
